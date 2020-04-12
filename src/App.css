@@ -19,3 +19,44 @@
 main {
   min-height: 85vh;
 }
+
+button.remove-user {
+  margin-left: 20px;
+}
+
+/* // blue: #003882
+// red: #d11021
+// gr: #035c2c
+// yellow: #f5b60b */
+li {
+  margin-bottom: 20px;
+}
+
+.card {
+  background-color: #EEE;
+  margin: 5px;
+  padding: 2px;
+  height: 30px;
+  width: 30px;
+  display: inline-block;
+}
+
+.card.blue {
+  color: #003882
+}
+
+.card.red {
+  color: #d11021
+}
+
+.card.green {
+  color: #035c2c
+}
+
+.card.yellow {
+  color: #f5b60b
+}
+
+.card.black {
+  color: #222
+}

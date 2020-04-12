@@ -2,11 +2,11 @@
 
 ### MVP
 
-- Finish front-end game initialization in `services/game/index.js`
-    - Clarify game init vs round init
-- Create and connect to start game button (available only to host)
+- ~~Finish front-end game initialization in `services/game/index.js`~~
+    - ~~Clarify game init vs round init~~
+- ~~Create and connect to start game button (available only to host)~~
 - Round logic
-    - Turn order
+    - ~~Turn order~~
     - Consider disconnect/reconnection
 - Should be able to view at any time:
     - Hand, to see what they need
@@ -54,6 +54,7 @@
 
 - `App.js` is already getting too large and should be broken down
 - JSDoc for custom functions
+- Code commenting!
 
 ### Stretch items
 
@@ -77,6 +78,11 @@
     - ???
 
 ## Updates
+
+### v0.0.2 - 4/12/2020
+
+- Most of the game and round initialization completed
+    - Needs UI updates
 
 ### v0.0.1 - 4/4/2020
 

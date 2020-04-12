@@ -1,2 +1,2 @@
 export { default as firebase } from './firebase' 
-export { default as gameService } from './game'
+export { default as game } from './game'

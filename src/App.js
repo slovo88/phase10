@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
 // import { gameService } from './services'
-import { firebase } from './services'
+import { firebase, game } from './services'
 
 
 function App() {
@@ -10,6 +10,9 @@ function App() {
   const [ displayName, setDisplayName ] = useState('')
   const [ isNewUser, setIsNewUser ] = useState(false)
   const [ isLoading, setIsLoading ] = useState(true)
+  const [ gameState, setGameState ] = useState('pregame')
+  const [ isCurrentTurn, setIsCurrentTurn ] = useState(false)
+  const [ isHost, setIsHost ] = useState(false)
   const [ userId, setUserId ] = useState(0)
   const [ userList, setUserList ] = useState([])
   const [ error, setError ] = useState('')
@@ -17,6 +20,7 @@ function App() {
   useEffect(() => {
     // determine user's authentication status
     const localStorageUserId = localStorage.getItem('p10-user-id')
+    let id = localStorageUserId
     
     if (localStorageUserId) {
       setUserId(localStorageUserId)
@@ -37,6 +41,7 @@ function App() {
         if (user) {
           const { uid } = user
           setUserId(uid)
+          id = uid
         }
       })
       
@@ -50,6 +55,22 @@ function App() {
         userList.push(childSnapshot.val())
       })
       setUserList(userList)
+    });
+
+    // show list of users currently in the game
+    database.ref(`/game/userList`).on('child_changed', (snapshot) => {
+      const newValue = snapshot.val();
+      let userInUserList = userList.find(user => user.uid === newValue.uid);
+      userInUserList = newValue
+
+      if (userInUserList.uid === id) {
+        setIsCurrentTurn(newValue.isCurrentTurn)
+      }
+    });
+
+    // show list of users currently in the game
+    database.ref(`/game/state`).on('value', (snapshot) => {
+      setGameState(snapshot.val())
     });
   }, [])
 
@@ -73,7 +94,13 @@ function App() {
     database.ref(`/game/userList`).once('value', (snapshot) => {
       const userList = []
       snapshot.forEach((childSnapshot) => {
-        userList.push(childSnapshot.val())
+        const childValue = childSnapshot.val()
+        userList.push(childValue)
+
+        // determine if player is host
+        if (childValue.host && uid === childValue.uid) {
+          setIsHost(true)
+        }
       })
 
       if (userList.length >= 6) {
@@ -82,10 +109,14 @@ function App() {
         const existsInUserList = userList.findIndex((user) => user.uid === uid) !== -1
         if (!existsInUserList) {
           const isUserHost = !userList.length
-          database.ref(`/game/userList`).push({ 
+          database.ref(`/game/userList/`).child(uid).set({ 
             displayName, 
             uid, 
-            host: isUserHost 
+            host: isUserHost,
+            score: 0,
+            gameScore: 0,
+            currentPhase: 1,
+            hasLaidPhaseThisRound: false,
           })
         }
       }
@@ -99,6 +130,17 @@ function App() {
     setDisplayName(nameInputValue)
     updateUserList(userId, nameInputValue)
     setIsNewUser(false)
+  }
+
+  function startGame(e) {
+    game.initializePhase10(userList).then(() => {
+      database.ref('game/state').set('round')
+    })
+  }
+
+  function removeUser(uid) {
+    database.ref(`game/userList/${uid}`).remove()
+    database.ref(`users/${uid}`).remove()
   }
 
   return (
@@ -127,15 +169,19 @@ function App() {
         <h1>Phase 10</h1>
       </header>
       <main>
+        {gameState}
+        {isCurrentTurn && <h1>It is your turn</h1>}
         {error && 
           <p dangerouslySetInnerHTML={{__html: error}} />
         }
         {isLoading ?
+          // TODO: make a loading spinner
           <p>loading...</p>
           :
           !isNewUser ?
             <p>{displayName}</p>
           :
+          // TODO: componetize the different game states - // pre-game, round, round-end, game-end
           isNewUser &&
             <>
               <h2>Welcome!</h2>
@@ -149,15 +195,36 @@ function App() {
               <button onClick={onDisplayNameSubmit}>Submit</button>
             </>
         }
+        {isHost && !isNewUser && userList.length > 0 &&
+          <button onClick={startGame}>Start Game</button>
+        }
         <ul>
           {
             userList.map((user, index) => (
-              <li 
-                className={`${user.uid} ${user.host && 'host'}`} 
-                key={`userList-${index}`}
-              >
-                {user.displayName}
-              </li>
+              <>
+                <li 
+                  className={`${user.uid} ${user.host && 'host'}`} 
+                  key={`userList-${index}`}
+                >
+                  {user.displayName}: {user.gameScore}
+                  {isHost && !user.host && 
+                    <button 
+                      key={`remove-${user.uid}`} 
+                      className="remove-user" 
+                      onClick={() => removeUser(user.uid)}
+                    >
+                      Remove user
+                    </button>
+                  }
+                </li>
+                {user.currentHand && 
+                  Object.entries(user.currentHand).map(card => {
+                    const { value, color } = card[1]
+                    return <span className={`card ${color}`}>{value} </span>
+                  }
+                )}
+              </>
+            
             ))
           }
         </ul>

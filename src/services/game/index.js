@@ -1,20 +1,73 @@
-import { firebase } from '../firebase'
+import { firebase } from '../'
+
+const database = firebase.database()
 
 // initialize game
 function initializePhase10(userList) {
-  // get users in game from fb
+  return database.ref('game/userList').once('value').then(function(snapshot) {
+    let index = 0;
+    snapshot.forEach((childSnapshot) => {
+      index++
+      childSnapshot.child('gameScore').ref.set(0)
+      childSnapshot.child('currentPhase').ref.set(1)
+      childSnapshot.child('hasLaidPhaseThisRound').ref.set(false)
+      childSnapshot.child('currentHand').ref.remove()
+      childSnapshot.child('turnOrder').ref.set(index)
+      childSnapshot.child('isCurrentTurn').ref.set(false)
+      childSnapshot.child('scoreAddedThisRound').ref.set(0)
 
-  // create and shuffle deck
-  const newDeck = _generateDeck()
-  const shuffledDeck = _shuffleCards(newDeck)
+      userList.find((user) => user.uid === childSnapshot.val().uid).turnOrder = index
+    })
 
-  // deal cards to players in the game
-  // for each player
-  // _drawCard 10 times
+    database.ref('game/currentRound').set(0)
+    
+    initializeRound(userList)
+  })
+}
 
-  // discard top card to discard pile
+function initializeRound(userList) {
+  const playersThisRound = userList.length
 
-  // determine play order
+  // advance round
+  database.ref('game/currentRound').once('value', (roundSnapshot) => {
+    let currentRound = roundSnapshot.val()
+    database.ref('game/currentRound').set(currentRound++)
+    
+    // create a new deck
+    const newDeck = _generateDeck()
+    
+    // move what the top card will be after dealing to discard pile
+    const indexOfTopCardPostDeal = playersThisRound * 10
+    database.ref('game/discardPile').set(newDeck.splice(indexOfTopCardPostDeal, 1))
+    
+    // deal cards to players
+    // HACK: more performant than looping and dealing 1 by 1, but also not traditonal deal ¯\_(ツ)_/¯
+    userList.forEach((user) => {
+      _drawCard(newDeck, user.uid, 10)
+    })
+    
+    database.ref('game/drawpile').set(newDeck)
+    
+    // determine turn order
+    while (currentRound > playersThisRound) {
+      currentRound -= playersThisRound
+    }
+    
+    const uidOfFirstPlayerThisRound = userList.find((user) => user.turnOrder === currentRound).uid;
+    database.ref(`game/userList/${uidOfFirstPlayerThisRound}/isCurrentTurn`).set(true)
+  })
+}
+
+function endRound() {
+  database.ref('game/state').set('round-end')
+
+  // loop through players
+    // increase phase if laid down that round
+    // calculate score based on cards left in hand
+      // set to user
+      // add to total score
+      // TODO: stretch, let users see score breakdown/what cards were left in their hands
+    // reset laid down, iscurrentturn
 }
 
 // deck generation
@@ -22,34 +75,30 @@ function _generateDeck() {
   const drawDeck = []
 
   // create cards:
-  // Values 1-12 and wilds, 2x each for all four colors
-  // Skips, 4x (blue in visual color, but cannot be used as blue card in gameplay)
-  // blue: #003882
-  // red: #d11021
-  // gr: #035c2c
-  // yellow: #f5b60b
+  // Values 1-12, 2x each for all four colors
+  // Skips, 4x
+  // Wilds, 8x
   const colors = ['red', 'yellow', 'green', 'blue']
 
-  for (let i = 0; i < colors.length; i++) {
-    const color = colors[i]
+  for (let cardColor = 0; cardColor < colors.length; cardColor++) {
+    const color = colors[cardColor]
 
     // creates four skip cards
-    drawDeck.push({ value: 'skip', color: 'skip' })
+    drawDeck.push({ value: 'S', color: 'black' })
 
-    for (let j = 1; j <= 12; j++) {
+    for (let number = 1; number <= 12; number++) {
       // creates 1-12 of each color, 2x
-      drawDeck.push({ value: j, color })
-      drawDeck.push({ value: j, color })
+      drawDeck.push({ value: number, color })
+      drawDeck.push({ value: number, color })
 
       // creates two wilds per color
-      if (j === 1 || j === 2) {
-        console.log(j, true)
-        drawDeck.push({ value: 'wild', color })
+      if (number === 1 || number === 2) {
+        drawDeck.push({ value: 'W', color: 'black' })
       }
     }
   }
 
-  return drawDeck
+  return _shuffleCards(drawDeck)
 }
 
 // shuffle array of cards
@@ -64,13 +113,15 @@ function _shuffleCards(cards) {
 
 // draw card to user's hand
 function _drawCard(drawSource, uid, cardsToDraw = 1) {
-  // get array of draw source
+  // TODO: check that enough cards are available to draw
 
-  // pop appropriate number of items from draw source array
+  // splice appropriate number of items from draw source array
+  const drawnCards = drawSource.splice(0, cardsToDraw)
 
   // update user's hand
-
-  // update draw source
+  drawnCards.forEach((card) => {
+    database.ref(`game/userList/${uid}/currentHand`).push(card)
+  })
 }
 
 export default { initializePhase10 }
