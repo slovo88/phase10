@@ -19,7 +19,7 @@ function DrawPile() {
     }
   }, [])
 
-  const drawPileCard = { color: 'black draw-pile', value: drawPileRemaining }
+  const drawPileCard = { color: 'black draw-pile', value: 'Draw Pile' }
 
   return (
     <Card

@@ -35,28 +35,71 @@ li {
 .card {
   background-color: #EEE;
   margin: 5px;
-  padding: 2px;
-  height: 30px;
-  width: 30px;
-  display: inline-block;
+  padding: 0;
+  height: 7vw;
+  width: 5vw;
+  position: relative;
+  border-radius: 2px;
+  border: 2px #eee solid;
+  font-weight: bold;
+  min-height: 70px;
+  min-width: 50px;
+}
+
+.card-value {
+  background-color: #eee;
+  height: 100%;
+  width: 100%;
+  border-radius: 50px 0px 50px 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-top-left-value {
+  color: #eee;
+  position: absolute;
+  top: -1.95%;
+  left: 6.5%;
+  font-size: 12px;
+}
+
+.card-bottom-right-value {
+  color: #eee;
+  position: absolute;
+  bottom: 0.05%;
+  right: 2.5%;
+  font-size: 12px;
+  transform: rotate(180deg);
 }
 
 .card.blue {
-  color: #003882
+  color: #003882;
+  background-color: #003882;
 }
 
 .card.red {
-  color: #d11021
+  color: #d11021;
+  background-color: #d11021;
 }
 
 .card.green {
-  color: #035c2c
+  color: #035c2c;
+  background-color: #035c2c;
 }
 
 .card.yellow {
-  color: #f5b60b
+  color: #f5b60b;
+  background-color: #f5b60b;
 }
 
 .card.black {
-  color: #222
+  color: #222;
+  background-color: #222;
+  font-size: 18px;
+}
+
+.card.draw-pile {
+  background-color: #eee;
 }

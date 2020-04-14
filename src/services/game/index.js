@@ -196,16 +196,16 @@ function _generateDeck() {
     const color = colors[cardColor]
 
     // creates four skip cards
-    drawDeck.push({ value: 'S', color: 'black' })
+    drawDeck.push({ value: 'Skip', color: 'black', corners: 'S' })
 
     for (let number = 1; number <= 12; number++) {
       // creates 1-12 of each color, 2x
-      drawDeck.push({ value: number, color })
-      drawDeck.push({ value: number, color })
+      drawDeck.push({ value: number, color, corners: number })
+      drawDeck.push({ value: number, color, corners:number })
 
       // creates two wilds per color
       if (number === 1 || number === 2) {
-        drawDeck.push({ value: 'W', color: 'black' })
+        drawDeck.push({ value: 'Wild', color: 'black', corners: 'W' })
       }
     }
   }

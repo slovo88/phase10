@@ -3,7 +3,7 @@ import { Card } from './'
 
 function Hand({ currentHand, onClick }) {
   return (
-    <div>
+    <div style={{display: 'flex', flexWrap: "wrap", justifyContent: "center"}}>
       {currentHand.map((card, index) => {
         return (
           <Card 
