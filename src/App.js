@@ -12,7 +12,6 @@ function App() {
   const [ isNewUser, setIsNewUser ] = useState(false)
   const [ isLoading, setIsLoading ] = useState(true)
   const [ gameState, setGameState ] = useState('')
-  const [ isCurrentTurn, setIsCurrentTurn ] = useState(false)
   const [ isHost, setIsHost ] = useState(false)
   const [ userId, setUserId ] = useState(0)
   const [ userList, setUserList ] = useState([])
@@ -64,10 +63,6 @@ function App() {
       const newValue = snapshot.val();
       let userInUserList = userList.find(user => user.uid === newValue.uid);
       userInUserList = newValue
-
-      if (userInUserList.uid === id) {
-        setIsCurrentTurn(newValue.isCurrentTurn)
-      }
     });
 
     // show list of users currently in the game
@@ -76,7 +71,7 @@ function App() {
     });
 
     database.ref(`/game/userList/${id}/currentHand`).on('value', (snapshot) => {
-      setCurrentHand(snapshot.val())
+      setCurrentHand(Object.entries(snapshot.val() || {}))
     })
   }, [])
 
@@ -87,8 +82,7 @@ function App() {
         setDisplayName(userInfo.displayName)
         setIsLoading(false)
         updateUserList(uid, userInfo.displayName)
-        setIsCurrentTurn(userInfo.isCurrentTurn || false)
-        setCurrentHand(userInfo.currentHand || [])
+        setCurrentHand(Object.entries(userInfo.currentHand || {}) || [])
       } else {
         setIsNewUser(true)
         setIsLoading(false)
@@ -181,28 +175,26 @@ function App() {
           // TODO: make a loading spinner
           <p>loading...</p>
           :
-          gameState === 'pregame' ? 
+          gameState === 'pregame' || isNewUser ? // TODO: figure out better way to handle user entering game after it has started
             <PreGame
-              isCurrentTurn={isCurrentTurn}
-              error={error}
-              isNewUser={isNewUser}
-              onDisplayNameSubmit={onDisplayNameSubmit}
-              isHost={isHost}
-              userList={userList}
-              startGame={startGame}
-              removeUser={removeUser}
+            error={error}
+            isNewUser={isNewUser}
+            onDisplayNameSubmit={onDisplayNameSubmit}
+            isHost={isHost}
+            userList={userList}
+            startGame={startGame}
+            removeUser={removeUser}
             />
-          :
-          gameState === 'round' ?
-            <Round 
+            :
+            gameState === 'round' ?
+              <Round 
               currentHand={currentHand}
               userList={userList}
-              isCurrentTurn={isCurrentTurn}
               userId={userId}
-            />
-          :
-          <p>Loading...</p>
-        }
+              />
+              :
+              <p>Loading...</p>
+        } 
       </main>
     </div>
   );

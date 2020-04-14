@@ -9,7 +9,7 @@ function DrawPile() {
 
   useEffect(() => {
     database.ref('game/drawPile').on('value', (snapshot) => {
-      const drawPile = snapshot.val()
+      const drawPile = snapshot.val() || []
   
       setDrawPileRemaining(drawPile.length)
     })

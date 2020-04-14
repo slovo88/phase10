@@ -2,6 +2,8 @@ import { firebase } from '../'
 
 const database = firebase.database()
 
+// Pregame gamestate
+
 // initialize game
 function initializePhase10(userList) {
   return database.ref('game/userList').once('value').then(function(snapshot) {
@@ -14,6 +16,7 @@ function initializePhase10(userList) {
       childSnapshot.child('currentHand').ref.remove()
       childSnapshot.child('turnOrder').ref.set(index)
       childSnapshot.child('isCurrentTurn').ref.set(false)
+      childSnapshot.child('hasDrawnThisTurn').ref.set(false)
       childSnapshot.child('scoreAddedThisRound').ref.set(0)
 
       userList.find((user) => user.uid === childSnapshot.val().uid).turnOrder = index
@@ -43,7 +46,7 @@ function initializeRound(userList) {
     // deal cards to players
     // HACK: more performant than looping and dealing 1 by 1, but also not traditonal deal ¯\_(ツ)_/¯
     userList.forEach((user) => {
-      _drawCard(newDeck, user.uid, 10)
+      _drawCardsToHand(newDeck, user.uid, 10)
     })
     
     database.ref('game/drawPile').set(newDeck)
@@ -58,17 +61,118 @@ function initializeRound(userList) {
   })
 }
 
+// Round gamestate
+
+// Turn
+// start turn -> draw -> play / lay -> discard
+
+// draw from draw or discard pile
+function drawFromPile(pile, uid) {
+  // get pile from fb
+  database.ref(`game/${pile}`).once('value', (snapshot) => {
+    const deck = snapshot.val()
+    console.log({deck})
+    // _drawCardsToHand to users hand
+    _drawCardsToHand(deck, uid)
+    console.log({deck})
+    // set pile in FB
+    database.ref(`game/${pile}`).set(deck)
+    // set hasDrawnThisTurn to true
+    database.ref(`game/userList/${uid}/hasDrawnThisTurn`).set(true)
+  })
+}
+
+// lay down phase
+function layDownPhase(uid, handSize, cardsForPhase1, cardsForPhase2) {
+  // TODO: validations to happen in component? or here?
+  // determine cards that can be played on each phase and group in objects
+  // push to new laidIds
+  // set laid value for user to true
+  // check handSize for round end
+    // endRound
+}
+
+// play from hand
+function playFromHand(uid, handSize, cardId, laidId) {
+  // TODO: validations to happen in component? or here?
+  // add to laidId
+  // remove from hand
+  // check handSize for round end
+    // endRound
+}
+
+// discard from hand
+function discardFromHand(uid, handSize, cardId, frontEndUserList) {
+  console.log(uid, handSize, cardId, frontEndUserList);
+  const cardPath = `game/userList/${uid}/currentHand/${cardId}`
+  
+  database.ref(cardPath).once('value', (snapshot) => {
+    const discardedCard = snapshot.val()
+    
+    // add to discardPile
+    database.ref('game/discardPile').once('value', (snapshot) => {
+      const discardPile = snapshot.val() || []
+
+      discardPile.push(discardedCard)
+
+      database.ref('game/discardPile').set(discardPile)
+      
+    })
+  })
+
+  // remove from hand
+  database.ref(cardPath).remove()
+
+  // check handSize for round end
+  if (handSize <= 1) {
+    endRound()
+  } else {
+    // end turn
+    const currentPlayer = frontEndUserList.find((user) => user.isCurrentTurn)
+    const currentPlusOne = frontEndUserList.find((user) => user.turnOrder === currentPlayer.turnOrder + 1)
+    const nextPlayer = currentPlusOne || frontEndUserList.find((user) => user.turnOrder === 1)
+
+    endTurn(currentPlayer.uid, nextPlayer.uid)
+  }
+}
+
+// end turn
+function endTurn(currentPlayer, nextPlayer) {
+  // set isCurrentTurn false for current player
+  database.ref(`game/userList/${currentPlayer}/isCurrentTurn`).set(false)
+  // set hasDrawnThisTurn false for current player
+  database.ref(`game/userList/${nextPlayer}/hasDrawnThisTurn`).set(false)
+  
+  // set isCurrentTurn true for next player
+  database.ref(`game/userList/${nextPlayer}/isCurrentTurn`).set(true)
+}
+
+// end the round
 function endRound() {
   database.ref('game/state').set('round-end')
 
   // loop through players
-    // increase phase if laid down that round
-    // calculate score based on cards left in hand
-      // set to user
-      // add to total score
-      // TODO: stretch, let users see score breakdown/what cards were left in their hands
-    // reset laid down, iscurrentturn
+  // calculate score based on cards left in hand
+  // set to user
+  // add to total score
+  // TODO: stretch, let users see score breakdown/what cards were left in their hands
+  // reset laid down, iscurrentturn, and drawnThisTurn
+  // increase phase if laid down that round
+    // if someone completed phase 10, endGame
 }
+
+// Round-end gamestate
+
+// check for game end
+function checkForGameEnd() {
+  // if someone completed phase 10, endGame
+  // else init round
+}
+
+// Game-end gamestate
+// don't think there is any specific functions here, but can re-init game
+
+// Utility functions
 
 // deck generation
 function _generateDeck() {
@@ -112,7 +216,7 @@ function _shuffleCards(cards) {
 }
 
 // draw card to user's hand
-function _drawCard(drawSource, uid, cardsToDraw = 1) {
+function _drawCardsToHand(drawSource, uid, cardsToDraw = 1) {
   // TODO: check that enough cards are available to draw
 
   // splice appropriate number of items from draw source array
@@ -124,4 +228,4 @@ function _drawCard(drawSource, uid, cardsToDraw = 1) {
   })
 }
 
-export default { initializePhase10 }
+export default { initializePhase10, drawFromPile, discardFromHand }
