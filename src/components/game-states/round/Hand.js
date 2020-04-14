@@ -1,9 +1,18 @@
 import React from 'react'
+import { Card } from './'
 
-function Hand({ children }) {
+function Hand({ currentHand, onClick }) {
   return (
     <div>
-      {children}
+      {currentHand.map((card, index) => {
+        return (
+          <Card 
+            card={card}
+            key={`card-${index}-${card[1].value}`}
+            onClick={onClick}
+          />
+        )
+      })}
     </div>
   )
 }

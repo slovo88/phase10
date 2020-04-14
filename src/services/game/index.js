@@ -70,13 +70,21 @@ function initializeRound(userList) {
 function drawFromPile(pile, uid) {
   // get pile from fb
   database.ref(`game/${pile}`).once('value', (snapshot) => {
-    const deck = snapshot.val()
-    console.log({deck})
+    let deck = snapshot.val()
     // _drawCardsToHand to users hand
     _drawCardsToHand(deck, uid)
-    console.log({deck})
+
+    // if draw pile is empty, shuffle discard pile
+    if (deck.length === 0 && pile === 'drawPile') {
+      database.ref('game/discardPile').once('value', (snapshot) => {
+        deck = _shuffleCards(snapshot.val())
+        database.ref(`game/discardPile`).set([])
+      })
+    } 
+
     // set pile in FB
     database.ref(`game/${pile}`).set(deck)
+
     // set hasDrawnThisTurn to true
     database.ref(`game/userList/${uid}/hasDrawnThisTurn`).set(true)
   })

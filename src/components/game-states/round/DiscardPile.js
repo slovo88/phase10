@@ -3,23 +3,22 @@ import { firebase } from '../../../services'
 import { Card } from '.'
 
 
-function DiscardPile({ isTopOfDiscardSkip, setIsTopOfDiscardSkip }) {
+function DiscardPile({ setIsDiscardDrawDisabled }) {
   const database = firebase.database()
 
   const [ topOfDiscard, setTopOfDiscard ] = useState({ color: null, value: null })
 
   useEffect(() => {
     database.ref('game/discardPile').on('value', (snapshot) => {
-      const topCard = snapshot.val() ? snapshot.val()[snapshot.val().length - 1] : { color: 'black', value: 'empty' }
+      const discardPileValue = snapshot.val()
+      const topCard = discardPileValue ? discardPileValue[discardPileValue.length - 1] : { color: 'black', value: '🚫' }
   
       setTopOfDiscard(topCard)
-
-      console.log(topCard)
-
-      if (topCard.value === 'S') {
-        setIsTopOfDiscardSkip(true)
-      } else if (isTopOfDiscardSkip) {
-        setIsTopOfDiscardSkip(false)
+      
+      if (topCard.value === 'S' || !discardPileValue) {
+        setIsDiscardDrawDisabled(true)
+      } else {
+        setIsDiscardDrawDisabled(false)
       }
     })
 

@@ -73,6 +73,12 @@ function App() {
     database.ref(`/game/userList/${id}/currentHand`).on('value', (snapshot) => {
       setCurrentHand(Object.entries(snapshot.val() || {}))
     })
+
+    return function cleanup() {
+      database.ref(`/game/userList/${id}/currentHand`).off()
+      database.ref(`/game/state`).off()
+      database.ref(`/game/userList`).off()
+    }
   }, [])
 
   function retrieveUserInfo(uid) {

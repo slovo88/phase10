@@ -16,7 +16,7 @@ function Round({
   const [ isCurrentTurn, setIsCurrentTurn ] = useState(false)
   const [ hasDrawnThisTurn, setHasDrawnThisTurn ] = useState(false)
   const [ hasLaidPhaseThisRound, setHasLaidPhaseThisRound ] = useState(false)
-  const [ isTopOfDiscardSkip, setIsTopOfDiscardSkip ] = useState(false)
+  const [ isDiscardDrawDisabled, setIsDiscardDrawDisabled ] = useState(false)
   const [ showModal, toggleModal ] = useState(false)
   const [ modalContent, setModalContent ] = useState(<div>Something went wrong, reach out to Pemo</div>)
 
@@ -53,19 +53,10 @@ function Round({
       setModalContent(
         <div>
           <h1>Select card to discard</h1>
-          <Hand>
-            {currentHand && 
-              currentHand.map((card, index) => {
-                return (
-                  <Card 
-                    card={card}
-                    key={`card-${index}-${card[1].value}`}
-                    onClick={doTheThing}
-                  />
-                )
-              }
-            )}
-          </Hand>
+          <Hand
+            currentHand={currentHand}
+            onClick={doTheThing}
+          />
         </div>
       )
       toggleModal(true)
@@ -87,30 +78,20 @@ function Round({
       {/* <OtherPlayers /> */}
       <DrawPile />
       <DiscardPile 
-        isTopOfDiscardSkip={isTopOfDiscardSkip}
-        setIsTopOfDiscardSkip={setIsTopOfDiscardSkip}
+        isDiscardDrawDisabled={isDiscardDrawDisabled}
+        setIsDiscardDrawDisabled={setIsDiscardDrawDisabled}
       />
 
-      <Hand>
-        {/* move to Hand.js */}
-        {currentHand && 
-          currentHand.map((card, index) => {
-            return (
-              <Card 
-                card={card}
-                key={`card-${index}-${card[1].value}`}
-              />
-            )
-          }
-        )}
-      </Hand>
+      <Hand
+        currentHand={currentHand}
+      />
 
       {isCurrentTurn ? 
         !hasDrawnThisTurn ?
           <div>
             <h3>Pick one</h3>
             <button onClick={() => drawFromPile('drawPile', userId)}>Draw from draw pile</button>
-            {!isTopOfDiscardSkip &&
+            {!isDiscardDrawDisabled &&
               <button onClick={() => drawFromPile('discardPile', userId)}>Draw from discard pile</button>
             }
           </div>
