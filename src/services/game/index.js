@@ -46,7 +46,7 @@ function initializeRound(userList) {
       _drawCard(newDeck, user.uid, 10)
     })
     
-    database.ref('game/drawpile').set(newDeck)
+    database.ref('game/drawPile').set(newDeck)
     
     // determine turn order
     while (currentRound > playersThisRound) {

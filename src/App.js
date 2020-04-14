@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
+import { PreGame, Round } from './components/game-states/'
 // import { gameService } from './services'
 import { firebase, game } from './services'
 
@@ -10,12 +11,13 @@ function App() {
   const [ displayName, setDisplayName ] = useState('')
   const [ isNewUser, setIsNewUser ] = useState(false)
   const [ isLoading, setIsLoading ] = useState(true)
-  const [ gameState, setGameState ] = useState('pregame')
+  const [ gameState, setGameState ] = useState('')
   const [ isCurrentTurn, setIsCurrentTurn ] = useState(false)
   const [ isHost, setIsHost ] = useState(false)
   const [ userId, setUserId ] = useState(0)
   const [ userList, setUserList ] = useState([])
   const [ error, setError ] = useState('')
+  const [ currentHand, setCurrentHand ] = useState([])
 
   useEffect(() => {
     // determine user's authentication status
@@ -72,15 +74,21 @@ function App() {
     database.ref(`/game/state`).on('value', (snapshot) => {
       setGameState(snapshot.val())
     });
+
+    database.ref(`/game/userList/${id}/currentHand`).on('value', (snapshot) => {
+      setCurrentHand(snapshot.val())
+    })
   }, [])
 
   function retrieveUserInfo(uid) {
-    database.ref(`/users/${uid}/displayName`).on('value', (snapshot) => {
-      const displayName = snapshot.val()
-      if (displayName) {
-        setDisplayName(displayName)
+    database.ref(`/game/userList/${uid}`).once('value', (snapshot) => {
+      const userInfo = snapshot.val()
+      if (userInfo) {
+        setDisplayName(userInfo.displayName)
         setIsLoading(false)
-        updateUserList(uid, displayName)
+        updateUserList(uid, userInfo.displayName)
+        setIsCurrentTurn(userInfo.isCurrentTurn || false)
+        setCurrentHand(userInfo.currentHand || [])
       } else {
         setIsNewUser(true)
         setIsLoading(false)
@@ -132,7 +140,7 @@ function App() {
     setIsNewUser(false)
   }
 
-  function startGame(e) {
+  function startGame() {
     game.initializePhase10(userList).then(() => {
       database.ref('game/state').set('round')
     })
@@ -169,66 +177,32 @@ function App() {
         <h1>Phase 10</h1>
       </header>
       <main>
-        {gameState}
-        {isCurrentTurn && <h1>It is your turn</h1>}
-        {error && 
-          <p dangerouslySetInnerHTML={{__html: error}} />
-        }
         {isLoading ?
           // TODO: make a loading spinner
           <p>loading...</p>
           :
-          !isNewUser ?
-            <p>{displayName}</p>
+          gameState === 'pregame' ? 
+            <PreGame
+              isCurrentTurn={isCurrentTurn}
+              error={error}
+              isNewUser={isNewUser}
+              onDisplayNameSubmit={onDisplayNameSubmit}
+              isHost={isHost}
+              userList={userList}
+              startGame={startGame}
+              removeUser={removeUser}
+            />
           :
-          // TODO: componetize the different game states - // pre-game, round, round-end, game-end
-          isNewUser &&
-            <>
-              <h2>Welcome!</h2>
-              <p>Please enter a username to join the game</p>
-              <label for='display-name'>Name:</label>
-              <input 
-                id='display-name' 
-                type='text' 
-                placeholder='Display Name'
-              />
-              <button onClick={onDisplayNameSubmit}>Submit</button>
-            </>
+          gameState === 'round' ?
+            <Round 
+              currentHand={currentHand}
+              userList={userList}
+              isCurrentTurn={isCurrentTurn}
+              userId={userId}
+            />
+          :
+          <p>Loading...</p>
         }
-        {isHost && !isNewUser && userList.length > 0 &&
-          <button onClick={startGame}>Start Game</button>
-        }
-        <ul>
-          {
-            userList.map((user, index) => (
-              <>
-                <li 
-                  className={`${user.uid} ${user.host && 'host'}`} 
-                  key={`userList-${index}`}
-                >
-                  {user.displayName}: {user.gameScore}
-                  {isHost && !user.host && 
-                    <button 
-                      key={`remove-${user.uid}`} 
-                      className="remove-user" 
-                      onClick={() => removeUser(user.uid)}
-                    >
-                      Remove user
-                    </button>
-                  }
-                </li>
-                {user.currentHand && 
-                  Object.entries(user.currentHand).map(card => {
-                    const { value, color } = card[1]
-                    return <span className={`card ${color}`}>{value} </span>
-                  }
-                )}
-              </>
-            
-            ))
-          }
-        </ul>
-
       </main>
     </div>
   );
