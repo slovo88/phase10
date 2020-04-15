@@ -14,7 +14,7 @@ function UserList({
             className={`${user.uid} ${user.host && 'host'}`} 
             key={`userList-${index}`}
           >
-            {user.displayName}
+            <span>{user.displayName}</span>
             {isHost && !user.host && 
               <button 
                 key={`remove-${user.uid}`} 

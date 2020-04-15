@@ -2,7 +2,7 @@ import React, { useEffect, useState} from 'react'
 import { Card } from '.'
 import { firebase } from '../../../services'
 
-function DrawPile() {
+function DrawPile({ onClick }) {
   const database = firebase.database()
 
   const [ drawPileRemaining, setDrawPileRemaining ] = useState(0)
@@ -19,11 +19,12 @@ function DrawPile() {
     }
   }, [])
 
-  const drawPileCard = { color: 'black draw-pile', value: 'Draw Pile' }
+  const drawPileCard = { color: 'black draw-pile', value: `Draw Pile (${drawPileRemaining})` }
 
   return (
     <Card
       card={drawPileCard}
+      onClick={onClick}
       className='draw-pile'
     />
   )

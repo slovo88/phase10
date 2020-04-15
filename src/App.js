@@ -98,13 +98,12 @@ function App() {
   }
   
   
-  function updateUserList(uid, displayName) {
-    database.ref(`/game/userList`).once('value', (snapshot) => {
+  function updateUserList(uid, displayName) {    
+    database.ref(`/game/userList`).once('value', (snapshot) => {      
       const userList = []
       snapshot.forEach((childSnapshot) => {
         const childValue = childSnapshot.val()
-        userList.push(childValue)
-
+        userList.push(childValue)      
         // determine if player is host
         if (childValue.host && uid === childValue.uid) {
           setIsHost(true)
@@ -117,6 +116,7 @@ function App() {
         const existsInUserList = userList.findIndex((user) => user.uid === uid) !== -1
         if (!existsInUserList) {
           const isUserHost = !userList.length
+          setIsHost(isUserHost)
           database.ref(`/game/userList/`).child(uid).set({ 
             displayName, 
             uid, 
@@ -135,7 +135,7 @@ function App() {
     e.preventDefault()
     const nameInputValue = document.getElementById('display-name').value
     database.ref(`/users/${userId}/displayName`).set(nameInputValue)
-    setDisplayName(nameInputValue)
+    setDisplayName(nameInputValue)    
     updateUserList(userId, nameInputValue)
     setIsNewUser(false)
   }
@@ -173,9 +173,6 @@ function App() {
         }
         `}
       </style>
-      <header className="App-header">
-        <h1>Phase 10</h1>
-      </header>
       <main>
         {isLoading ?
           // TODO: make a loading spinner

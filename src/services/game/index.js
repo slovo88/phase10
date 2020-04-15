@@ -91,8 +91,9 @@ function drawFromPile(pile, uid) {
 }
 
 // lay down phase
-function layDownPhase(uid, handSize, cardsForPhase1, cardsForPhase2) {
+function layDownPhase(uid, handSize, laidCollections) {
   // TODO: validations to happen in component? or here?
+  console.log(uid, handSize, laidCollections)
   // determine cards that can be played on each phase and group in objects
   // push to new laidIds
   // set laid value for user to true
@@ -111,7 +112,7 @@ function playFromHand(uid, handSize, cardId, laidId) {
 
 // discard from hand
 function discardFromHand(uid, handSize, cardId, frontEndUserList) {
-  console.log(uid, handSize, cardId, frontEndUserList);
+  // TODO: make skips work
   const cardPath = `game/userList/${uid}/currentHand/${cardId}`
   
   database.ref(cardPath).once('value', (snapshot) => {
@@ -121,7 +122,7 @@ function discardFromHand(uid, handSize, cardId, frontEndUserList) {
     database.ref('game/discardPile').once('value', (snapshot) => {
       const discardPile = snapshot.val() || []
 
-      discardPile.push(discardedCard)
+      discardPile.unshift(discardedCard)
 
       database.ref('game/discardPile').set(discardPile)
       
@@ -236,4 +237,4 @@ function _drawCardsToHand(drawSource, uid, cardsToDraw = 1) {
   })
 }
 
-export default { initializePhase10, drawFromPile, discardFromHand }
+export default { initializePhase10, drawFromPile, discardFromHand, layDownPhase }

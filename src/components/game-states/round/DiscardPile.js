@@ -3,7 +3,7 @@ import { firebase } from '../../../services'
 import { Card } from '.'
 
 
-function DiscardPile({ setIsDiscardDrawDisabled }) {
+function DiscardPile({ setIsDiscardDrawDisabled, onClick }) {
   const database = firebase.database()
 
   const [ topOfDiscard, setTopOfDiscard ] = useState({ color: null, value: null })
@@ -11,7 +11,7 @@ function DiscardPile({ setIsDiscardDrawDisabled }) {
   useEffect(() => {
     database.ref('game/discardPile').on('value', (snapshot) => {
       const discardPileValue = snapshot.val()
-      const topCard = discardPileValue ? discardPileValue[discardPileValue.length - 1] : { color: 'black', value: '🚫' }
+      const topCard = discardPileValue ? discardPileValue[0] : { color: 'black', value: 'X', corners: '' }
   
       setTopOfDiscard(topCard)
       
@@ -29,6 +29,7 @@ function DiscardPile({ setIsDiscardDrawDisabled }) {
 
   return (
     <Card 
+      onClick={onClick}
       card={topOfDiscard}
     />
   )

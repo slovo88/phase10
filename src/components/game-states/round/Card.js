@@ -8,7 +8,7 @@ function Card({
   
   return (
     <div 
-      onClick={onClick} 
+      onClick={onClick ? () => onClick(card) : () => {}} 
       data-card-id={card[0]} 
       className={`card ${color}`}
     >

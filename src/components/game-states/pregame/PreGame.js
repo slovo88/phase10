@@ -16,6 +16,9 @@ function PreGame({
 }) {
   return (
     <>
+    <header className="App-header">
+      <h1>Phase 10</h1>
+    </header>
       {error && 
         <p dangerouslySetInnerHTML={{__html: error}} />
       }
@@ -41,7 +44,7 @@ function PreGame({
           </>
       }
       {isHost && !isNewUser && userList.length > 0 &&
-        <button onClick={startGame}>Start Game</button>
+        <button onClick={startGame}>Everybody's In</button>
       }
       <UserList
         userList={userList}
