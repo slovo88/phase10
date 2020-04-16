@@ -20,7 +20,6 @@ function UserList({
                 key={`remove-${user.uid}`} 
                 className="remove-user" 
                 onClick={() => removeUser(user.uid)}
-                key={`remove-${user.uid}`}
               >
                 Remove user
               </button>

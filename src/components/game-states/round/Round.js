@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { DiscardPile, Hand, DrawPile, OtherPlayers, CompletedPhase } from './'
+import { DiscardPile,
+  Hand,
+  DrawPile,
+  OtherPlayers,
+  CompletedPhase,
+  HitView,
+} from './'
 import { game, firebase } from '../../../services'
 import { FullScreenModal } from '../../shared'
 import phaseMap from '../../../constants/phases'
@@ -242,12 +248,6 @@ function Round({
     )
   }
 
-  function HitView() {
-    return (
-      <p>Placeholder for hit view</p>
-    )
-  }
-
   function openModal(modalStatus) {
     setRuleIndex(0)
     setSelected([])
@@ -274,7 +274,13 @@ function Round({
               <DiscardView />
             :
             modalContent === 'hitting' &&
-              <HitView />
+              <HitView 
+                userId={userId} 
+                currentHand={currentHand}
+                selected={selected}
+                toggleInSelection={toggleInSelection}
+                closeModal={closeModal}
+              />
           }
         </FullScreenModal>
       }
@@ -298,7 +304,7 @@ function Round({
           </div>
         </div>
         <div className="players-phase">
-          <p>Your phase:</p>  
+          <p>Your phase: {currentPhase}</p>  
           {/* Move this to a component to share with OtherPlayers.js */}
           {hasLaidPhaseThisRound ?
             <CompletedPhase uid={userId} />

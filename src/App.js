@@ -111,8 +111,10 @@ function App() {
       })
 
       if (userList.length >= 6) {
-        setError('There are already 6 people in this game.<br>An update is coming soon to allow watching matches.')
-      }  else {
+        setError('There are already 6 people in this game.')
+      // }  else if () {
+        // TODO: game has started error
+      } else {
         const existsInUserList = userList.findIndex((user) => user.uid === uid) !== -1
         if (!existsInUserList) {
           const isUserHost = !userList.length

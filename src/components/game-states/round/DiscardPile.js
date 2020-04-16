@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { firebase } from '../../../services'
 import { Card } from '.'
 
+const database = firebase.database()
+
 
 function DiscardPile({ setIsDiscardDrawDisabled, onClick }) {
-  const database = firebase.database()
 
   const [ topOfDiscard, setTopOfDiscard ] = useState({ color: null, value: null })
 

@@ -4,9 +4,6 @@ import { CompletedPhase } from './'
 
 
 function OtherPlayers({ userList, userId }) {
-
-  console.log({userList, userId})
-  // TODO: order the users based on who is after player -> who is before
   const thisUser = userList.find((user) => user.uid === userId)
   const otherUsers = userList.filter((user) => user.uid !== userId)
 

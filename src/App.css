@@ -82,6 +82,13 @@ li span {
   margin-bottom: 10px;
 }
 
+.hand-wrapper {
+  min-height: 84px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .card-piles-wrapper {
   padding: 3px;
 }
@@ -217,6 +224,14 @@ button {
   background-color: #003882;
   color: #eee;
   border-radius: 5px;
+}
+
+.hit-view li {
+  list-style: none;
+  text-align: center;
+}
+.hit-view ul {
+  padding: 0;
 }
 
 @media only screen and (max-width: 720px) {

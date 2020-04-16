@@ -115,12 +115,46 @@ function layDownPhase(uid, handSize, laidCollections) {
 }
 
 // play from hand
-function hitOnLaidPhase(uid, handSize, cardId, laidId) {
-  // TODO: validations to happen in component? or here?
-  // add to laidId
-  // remove from hand
+function hitOnLaidPhase(uid, handSize, isRun, cards, laidId, phaseIndex, wildValue) {
+  // remove card(s) from user's hand
+  cards.forEach((card) => {
+    database.ref(`game/userList/${uid}/currentHand/${card[0]}`).remove()
+  })
+
   // check handSize for round end
-    // endRound
+  if (handSize === cards.length) {
+    endRound()
+  }
+
+  const phaseRefPath = `game/laidPhases/${laidId}/${phaseIndex}`
+
+  database.ref(phaseRefPath).once('value', (snapshot) => {
+    const phaseBeingHit = snapshot.val()
+    const phaseCards = phaseBeingHit.cards
+    const phaseOptions = phaseBeingHit.possiblePlays.options
+
+    // recalculate options (if it is a run) and add card
+    if (isRun)  {
+      const addedValue = wildValue || cards[0][1].value
+      const isBeingPrepended = addedValue === phaseOptions[0] - 1
+
+      if (isBeingPrepended) {
+        phaseCards.unshift(cards[0])
+        database.ref(`${phaseRefPath}/cards`).set(phaseCards)
+        database.ref(`${phaseRefPath}/possiblePlays/options`).set([phaseOptions[0]-1, phaseOptions[1]])
+      } else {
+        phaseCards.push(cards[0])
+        database.ref(`${phaseRefPath}/cards`).set(phaseCards)
+        database.ref(`${phaseRefPath}/possiblePlays/options`).set([phaseOptions[0], phaseOptions[1]+1])
+      }
+
+    } else {
+      cards.forEach((card) => {
+        phaseCards.push(card)
+        database.ref(`${phaseRefPath}/cards`).set(phaseCards)
+      })
+    }
+  })
 }
 
 // discard from hand
@@ -253,4 +287,4 @@ function _drawCardsToHand(drawSource, uid, cardsToDraw = 1) {
   })
 }
 
-export default { initializePhase10, drawFromPile, discardFromHand, layDownPhase }
+export default { initializePhase10, drawFromPile, discardFromHand, layDownPhase, hitOnLaidPhase }

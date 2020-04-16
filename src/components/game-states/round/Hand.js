@@ -1,9 +1,11 @@
 import React from 'react'
 import { Card } from './'
 
+// possibly sort currentHand
+// arr.sort((a,b) => a.localeCompare(b))
 function Hand({ currentHand, onClick }) {
   return (
-    <div style={{display: 'flex', flexWrap: "wrap", justifyContent: "center"}}>
+    <div className="hand-wrapper">
       {currentHand.map((card, index) => {
         return (
           <Card 
