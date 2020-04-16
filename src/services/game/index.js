@@ -92,17 +92,30 @@ function drawFromPile(pile, uid) {
 
 // lay down phase
 function layDownPhase(uid, handSize, laidCollections) {
-  // TODO: validations to happen in component? or here?
-  console.log(uid, handSize, laidCollections)
-  // determine cards that can be played on each phase and group in objects
-  // push to new laidIds
-  // set laid value for user to true
   // check handSize for round end
-    // endRound
+  const countOfCardsLaid = laidCollections.reduce(((acc, curr) => acc + curr.cards.length), 0)
+
+  // set laid value for user to true
+  database.ref(`game/userList/${uid}/hasLaidPhaseThisRound`).set(true)
+  
+  // remove cards from users hand
+  laidCollections.forEach((rule) => {
+    rule.cards.forEach((card) => {
+      database.ref(`game/userList/${uid}/currentHand/${card[0]}`).remove()
+    })
+  })
+  
+  // add to laidPhases, with userId as the key
+  database.ref(`game/laidPhases/${uid}`).set(laidCollections)
+
+  // if user lays down enough cards to go out, end the round
+  if (countOfCardsLaid === handSize) {
+    endRound()
+  }
 }
 
 // play from hand
-function playFromHand(uid, handSize, cardId, laidId) {
+function hitOnLaidPhase(uid, handSize, cardId, laidId) {
   // TODO: validations to happen in component? or here?
   // add to laidId
   // remove from hand

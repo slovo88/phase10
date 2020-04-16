@@ -9,32 +9,36 @@
     - ~~Turn order~~
     - Consider disconnect/reconnection
 - Should be able to view at any time:
-    - Hand, to see what they need
+    - ~~Hand, to see what they need~~
     - Table, to see what's been played
-    - Phase, so they know what they're aiming for (maybe show when viewing hand?)
+    - ~~Phase, so they know what they're aiming for (maybe show when viewing hand?)~~
     - Phase list
     - Turn order (and what phase they are on)
-    - 
-    - Top of discard pile?
+    - Top of discard pile
 - Turn logic
-    - Draw
-        - Choice of Draw or Discard piles
-    - Lay down phase
-        - Only if not already laid down
+    - ~~Draw~~
+        - ~~Choice of Draw or Discard piles~~
+    - ~~Lay down phase~~
+        - ~~Only if not already laid down~~
         - Only if verified
-            - Runs
-            - Sets
-            - Color (Phase 8)
-            - Initial thought is to ask player to select cards for each requirement
-    - Play
+            - ~~Runs~~
+            - ~~Sets~~
+            - ~~Color (Phase 8)~~
+            - ~~Initial thought is to ask player to select cards for each requirement~~
+            - Need consideration if run/set is all Wilds
+    - Hit
         - Only if laid down
-        - Must verify
+        - Verify
             - Consider wilds for runs, can go on front or back (2,3,4,5 -> 1 or 6)
-    - Discard
+        - Laying multiple on same run/set
+    - ~~Discard~~
+        - ~~Added auto-choice if only one card in hand for player convenience~~
     - Check if hand is empty (signaling round end)
-    - If not round end, pass turn
+        - ~~On discard~~
+        - ~~On laying phase~~
+        - On hitting
+    - ~~If not round end, pass turn~~
 - Round end
-    - Initial thought is to do on host's front end (as record of truth, prevent race conditions between clients)
     - Total up cards in player's hands
         - 1-9 worth 5
         - 10-12 worth 10
@@ -42,7 +46,6 @@
         - Wilds worth 25
     - If any player finished phase 10, run game end
 - Game end
-    - Initial thought is to do on host's front end (as record of truth, prevent race conditions between clients)
     - Order players by total and share with all players
     - Not sure how to handle end/restart game yet
         - Want to remove all players from game, reset data, etc; but want to give players to option to stay on score screen
@@ -52,15 +55,16 @@
 
 ### Tech debt
 
-- `App.js` is already getting too large and should be broken down
-- JSDoc for custom functions
+- ~~`App.js` is already getting too large and should be broken down~~
+    - Now `Round.js` is too big 🙄
+- JSDoc for functions
 - Code commenting!
 
 ### Stretch items
 
 - Allow players over 6 to watch in-progress game
 - Create multiple game instances
-    - Probably use passcode system
+    - Probably use passcode system like Jackbox
 - Allow late-comers to join in-progress game
     - They would come in sharing the worst score, at the end of the current round
 - Allow people to drop

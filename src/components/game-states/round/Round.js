@@ -2,28 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { DiscardPile, Hand, DrawPile } from './'
 import { game, firebase } from '../../../services'
 import { FullScreenModal } from '../../shared'
+import phaseMap from '../../../constants/phases'
 
 //discardFromHand(uid, handSize, cardId, turnOrder)
 const { drawFromPile, discardFromHand, layDownPhase } = game
 const database = firebase.database()
-
-const phaseMap = {
-  1: {
-    rules: [
-      {
-        type: "run",
-        number: "3",
-        text: "first run of 3",
-      },
-      {
-        type: "set",
-        number: "3",
-        text: "second set of 3"
-      }
-    ],
-    text: [ "2 sets of 3" ]
-  }
-}
 
 function Round({
   currentHand,
@@ -41,10 +24,9 @@ function Round({
   const [ showModal, toggleModal ] = useState(false)
   const [ modalContent, setModalContent ] = useState('')
   const [ layHand, setLayHand ] = useState([])
+  const [ itemsToBeLaid, setitemsToBeLaid ] = useState([])
 
-  const itemsToBeLaid = []
-
-  // TODO: figure out how to get sorting hand to work - reorder in FB? click and drag?
+  // TODO: figure out how to get sorting hand to work - reorder in FB? click and drag? Click to sort?
   // function sortByValue() {
   //   var topUserPostsRef = firebase.database().ref('game/' + userId + '/currentHand').orderByChild('color');
 
@@ -123,16 +105,17 @@ function Round({
       // TODO: handle all wilds
     }
 
+    const rule = rules[ruleIndex]
+
     const validatedPhase = {
       cards: selected,
-      rules,
+      rule,
       possiblePlays: {
         valueType: '',
         options: []
       }
     }
     
-    // TODO: all wilds, more wilds past 12 or under 1
     // run
     if (ruleType === 'run') {
       const firstNumber = selected[firstNonWildIndex][1].value
@@ -149,12 +132,19 @@ function Round({
         numberCheckStart++
       }
 
+      const lowestNumber = firstNumber - firstNonWildIndex
+      const highestNumber = numberCheckStart - 1
+
+      if (lowestNumber <= 0 || highestNumber >= 13) {
+        error = 'These cards to do not make a run or may be out of order'
+        return
+      }
+
       validatedPhase.possiblePlays.valueType = 'value'
-      validatedPhase.possiblePlays.options.push(firstNumber - firstNonWildIndex - 1)
+      validatedPhase.possiblePlays.options.push(lowestNumber - 1)
       validatedPhase.possiblePlays.options.push(numberCheckStart)
     } 
     
-    // TODO: all wilds
     // set
     if (ruleType === 'set') {
       let setValue = selected[firstNonWildIndex][1].value
@@ -172,7 +162,6 @@ function Round({
       validatedPhase.possiblePlays.options.push(setValue)
     }
     
-    // TODO: all wilds
     // color
     if (ruleType === 'color') {
       let setColor = selected[firstNonWildIndex][1].color
@@ -253,16 +242,15 @@ function Round({
   }
 
   function openModal(modalStatus) {
+    setRuleIndex(0)
+    setSelected([])
+    setitemsToBeLaid([])
     setModalContent(modalStatus)
     setLayHand(currentHand)
     toggleModal(true)
   }
 
   function closeModal() {
-    setSelected([])
-    setRuleIndex(0)
-    itemsToBeLaid.length = 0
-
     toggleModal(false)
   }
 
