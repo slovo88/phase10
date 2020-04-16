@@ -125,7 +125,6 @@ function hitOnLaidPhase(uid, handSize, cardId, laidId) {
 
 // discard from hand
 function discardFromHand(uid, handSize, cardId, frontEndUserList) {
-  // TODO: make skips work
   const cardPath = `game/userList/${uid}/currentHand/${cardId}`
   
   database.ref(cardPath).once('value', (snapshot) => {
@@ -139,23 +138,27 @@ function discardFromHand(uid, handSize, cardId, frontEndUserList) {
 
       database.ref('game/discardPile').set(discardPile)
       
+      // remove from hand
+      database.ref(cardPath).remove()
+      
+      // check handSize for round end
+      if (handSize <= 1) {
+        endRound()
+      } else {
+        // end turn
+        const currentPlayer = frontEndUserList.find((user) => user.isCurrentTurn)
+        const currentPlusOne = frontEndUserList.find((user) => user.turnOrder === currentPlayer.turnOrder + 1)
+        let nextPlayer = currentPlusOne || frontEndUserList.find((user) => user.turnOrder === 1)
+
+        if (discardedCard.value === 'Skip') {
+          const followingUser = frontEndUserList.find((user) => user.turnOrder === nextPlayer.turnOrder + 1)
+          nextPlayer = followingUser || frontEndUserList.find((user) => user.turnOrder === 1)
+        }
+        
+        endTurn(currentPlayer.uid, nextPlayer.uid)
+      }
     })
   })
-
-  // remove from hand
-  database.ref(cardPath).remove()
-
-  // check handSize for round end
-  if (handSize <= 1) {
-    endRound()
-  } else {
-    // end turn
-    const currentPlayer = frontEndUserList.find((user) => user.isCurrentTurn)
-    const currentPlusOne = frontEndUserList.find((user) => user.turnOrder === currentPlayer.turnOrder + 1)
-    const nextPlayer = currentPlusOne || frontEndUserList.find((user) => user.turnOrder === 1)
-
-    endTurn(currentPlayer.uid, nextPlayer.uid)
-  }
 }
 
 // end turn

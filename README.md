@@ -5,20 +5,19 @@
 - ~~Finish front-end game initialization in `services/game/index.js`~~
     - ~~Clarify game init vs round init~~
 - ~~Create and connect to start game button (available only to host)~~
-- Round logic
+- ~~Round logic~~
     - ~~Turn order~~
-    - Consider disconnect/reconnection
-- Should be able to view at any time:
+    - ~~Consider disconnect/reconnection~~
+- ~~Should be able to view at any time:~~
     - ~~Hand, to see what they need~~
-    - Table, to see what's been played
+    - ~~Table, to see what's been played~~
     - ~~Phase, so they know what they're aiming for (maybe show when viewing hand?)~~
-    - Phase list
-    - Turn order (and what phase they are on)
-    - Top of discard pile
+    - ~~Turn order (and what phase they are on)~~
+    - ~~Top of discard pile~~
 - Turn logic
     - ~~Draw~~
         - ~~Choice of Draw or Discard piles~~
-    - ~~Lay down phase~~
+    - Lay down phase
         - ~~Only if not already laid down~~
         - Only if verified
             - ~~Runs~~
@@ -33,6 +32,7 @@
         - Laying multiple on same run/set
     - ~~Discard~~
         - ~~Added auto-choice if only one card in hand for player convenience~~
+        - ~~Skip next player if skip is played~~
     - Check if hand is empty (signaling round end)
         - ~~On discard~~
         - ~~On laying phase~~
