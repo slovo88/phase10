@@ -161,15 +161,21 @@ function App() {
         }
 
         li.${userId}::after {
-          content: " (you)"
+          content: " (you)";
+          position: relative;
+          top: -3px;
         }
 
         li.host::after {
-          content: " (host)"
+          content: " (host)";
+          position: relative;
+          top: -3px;
         }
 
         li.${userId}.host::after {
-          content: " (you, host)"
+          content: " (you, host)";
+          position: relative;
+          top: -3px;
         }
         `}
       </style>

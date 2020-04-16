@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { DiscardPile, Hand, DrawPile } from './'
+import { DiscardPile, Hand, DrawPile, OtherPlayers, CompletedPhase } from './'
 import { game, firebase } from '../../../services'
 import { FullScreenModal } from '../../shared'
 import phaseMap from '../../../constants/phases'
@@ -38,12 +38,12 @@ function Round({
 
     database.ref(`/game/userList/${userId}/`).on('value', (snapshot) => {
       const snapshotValue = snapshot.val()
-        setIsCurrentTurn(snapshotValue.isCurrentTurn || false)
-        setHasDrawnThisTurn(snapshotValue.hasDrawnThisTurn || false)
-        setHasLaidPhaseThisRound(snapshotValue.hasLaidPhaseThisRound || false)
-        setCurrentPhase(snapshotValue.currentPhase)
-      })
-      
+      setIsCurrentTurn(snapshotValue.isCurrentTurn || false)
+      setHasDrawnThisTurn(snapshotValue.hasDrawnThisTurn || false)
+      setHasLaidPhaseThisRound(snapshotValue.hasLaidPhaseThisRound || false)
+      setCurrentPhase(snapshotValue.currentPhase)
+    })
+
     return function cleanup() {
       database.ref(`/game/userList/${userId}/isCurrentTurn`).off()
     }
@@ -64,6 +64,7 @@ function Round({
     // -1 if not already selected, index number otherwise
     const selectionIndex = selected.findIndex((selection) => selection[0] === card[0])
 
+    // need copy to update state with
     const selectedCopy = selected.map((card) => card)
 
     // check if card has already been selected
@@ -241,6 +242,12 @@ function Round({
     )
   }
 
+  function HitView() {
+    return (
+      <p>Placeholder for hit view</p>
+    )
+  }
+
   function openModal(modalStatus) {
     setRuleIndex(0)
     setSelected([])
@@ -263,17 +270,23 @@ function Round({
           {modalContent === 'laying' ?
             <LayingView />
             :
-            modalContent === 'discarding' &&
+            modalContent === 'discarding' ?
               <DiscardView />
+            :
+            modalContent === 'hitting' &&
+              <HitView />
           }
         </FullScreenModal>
       }
 
       {/* TODO: Show other player's name, phase, laid down cards, and hand size */}
-      {/* <OtherPlayers /> */}
+      <OtherPlayers 
+        userList={userList}
+        userId={userId}
+      />
 
       <div className="round-middle">
-        <div className={`card-piles-wrapper ${!hasDrawnThisTurn && 'highlight'}`}>
+        <div className={`card-piles-wrapper ${isCurrentTurn && !hasDrawnThisTurn && 'highlight'}`}>
           <div className="card-piles">
             <DrawPile
               onClick={() => handleDrawPileClick('drawPile')}
@@ -286,12 +299,13 @@ function Round({
         </div>
         <div className="players-phase">
           <p>Your phase:</p>  
-          {!hasLaidPhaseThisRound ?
+          {/* Move this to a component to share with OtherPlayers.js */}
+          {hasLaidPhaseThisRound ?
+            <CompletedPhase uid={userId} />
+            :
             phaseMap[currentPhase].text.map((phaseText) => {
               return <p key={`${userId}-${phaseText}`} className="phase-text">{phaseText}</p>
             })
-            :
-            <p>placeholder for successful laydown</p>
           }
           
         </div>
@@ -305,7 +319,7 @@ function Round({
       {isCurrentTurn && hasDrawnThisTurn ? 
           <div>
             {hasLaidPhaseThisRound ? 
-              <button>Hit on laid phase</button>
+              <button onClick={() => openModal('hitting')}>Hit on laid phase</button>
               :
               <button onClick={() => openModal('laying')}>Lay down phase</button>
             }
