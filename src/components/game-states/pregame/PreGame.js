@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 // import { firebase, game } from '../../../services'
-import { UserList } from './'
+import { UserList } from '../../shared'
 
 
 function PreGame({

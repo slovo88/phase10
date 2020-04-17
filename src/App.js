@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
-import { PreGame, Round } from './components/game-states/'
-// import { gameService } from './services'
+import { PreGame, Round, RoundEnd } from './components/game-states/'
 import { firebase, game } from './services'
+import { UserList } from './components/shared'
+
+const database = firebase.database()
 
 
 function App() {
-  const database = firebase.database()
   
   const [ displayName, setDisplayName ] = useState('')
   const [ isNewUser, setIsNewUser ] = useState(false)
@@ -162,22 +163,16 @@ function App() {
           color: seagreen;
         }
 
-        li.${userId}::after {
+        .users-ingame li.${userId}::after {
           content: " (you)";
-          position: relative;
-          top: -3px;
         }
 
-        li.host::after {
+        .users-ingame li.host::after {
           content: " (host)";
-          position: relative;
-          top: -3px;
         }
 
-        li.${userId}.host::after {
+        .users-ingame li.${userId}.host::after {
           content: " (you, host)";
-          position: relative;
-          top: -3px;
         }
         `}
       </style>
@@ -204,7 +199,20 @@ function App() {
               userId={userId}
               />
               :
-              <p>Loading...</p>
+              gameState === 'round-end' || gameState === 'game-end' ?
+                <RoundEnd 
+                  isHost={isHost} 
+                  isEndOfGame={gameState === 'game-end'}
+                >
+                  <UserList
+                    userList={userList}
+                    isHost={isHost}
+                    removeUser={() => {}}
+                    isScoreScreen={true}
+                  />
+                </RoundEnd>
+                :
+                <p>Loading...</p>
         } 
       </main>
     </div>

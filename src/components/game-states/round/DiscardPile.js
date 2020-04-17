@@ -16,7 +16,7 @@ function DiscardPile({ setIsDiscardDrawDisabled, onClick }) {
   
       setTopOfDiscard(topCard)
       
-      if (topCard.value === 'S' || !discardPileValue) {
+      if (topCard.value === 'Skip' || !discardPileValue) {
         setIsDiscardDrawDisabled(true)
       } else {
         setIsDiscardDrawDisabled(false)

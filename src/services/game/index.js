@@ -24,11 +24,11 @@ function initializePhase10(userList) {
 
     database.ref('game/currentRound').set(0)
     
-    initializeRound(userList)
+    _initializeRound(userList)
   })
 }
 
-function initializeRound(userList) {
+function _initializeRound(userList) {
   const playersThisRound = userList.length
 
   // advance round
@@ -41,7 +41,13 @@ function initializeRound(userList) {
     
     // move what the top card will be after dealing to discard pile
     const indexOfTopCardPostDeal = playersThisRound * 10
-    database.ref('game/discardPile').set(newDeck.splice(indexOfTopCardPostDeal, 1))
+    const newDiscardPile = newDeck.splice(indexOfTopCardPostDeal, 1)
+    database.ref('game/discardPile').set(newDiscardPile)
+
+    // if dicard pile is a skip, skip the otherwise first player's turn
+    if (newDiscardPile[0].value === 'Skip') {
+      currentRound++
+    }
     
     // deal cards to players
     // HACK: more performant than looping and dealing 1 by 1, but also not traditonal deal ¯\_(ツ)_/¯
@@ -50,7 +56,7 @@ function initializeRound(userList) {
     })
     
     database.ref('game/drawPile').set(newDeck)
-    
+
     // determine turn order
     while (currentRound > playersThisRound) {
       currentRound -= playersThisRound
@@ -136,7 +142,7 @@ function hitOnLaidPhase(uid, handSize, isRun, cards, laidId, phaseIndex, wildVal
     // recalculate options (if it is a run) and add card
     if (isRun)  {
       const addedValue = wildValue || cards[0][1].value
-      const isBeingPrepended = addedValue === phaseOptions[0] - 1
+      const isBeingPrepended = addedValue === phaseOptions[0]
 
       if (isBeingPrepended) {
         phaseCards.unshift(cards[0])
@@ -208,28 +214,64 @@ function endTurn(currentPlayer, nextPlayer) {
 
 // end the round
 function endRound() {
-  database.ref('game/state').set('round-end')
-
   // loop through players
-  // calculate score based on cards left in hand
-  // set to user
-  // add to total score
-  // TODO: stretch, let users see score breakdown/what cards were left in their hands
-  // reset laid down, iscurrentturn, and drawnThisTurn
-  // increase phase if laid down that round
-    // if someone completed phase 10, endGame
+  database.ref(`game/userList`).once('value', (snapshot) => {
+    let gameShouldEnd = false
+
+    snapshot.forEach((player) => {
+      const { gameScore, hasLaidPhaseThisRound, currentHand, currentPhase } = player.val()
+
+      // calculate score based on cards left in hand
+      let roundScore = 0
+
+      if (currentHand) {
+        Object.entries(currentHand).forEach((card) => {
+          if (typeof card[1].value === 'number') {
+            if (card[1].value < 10) {
+              roundScore += 5
+            } else {
+              roundScore += 10
+            }
+          } else if (card[1].value === 'Skip') {
+            roundScore += 15
+          } else {
+            roundScore += 25
+          }
+        })
+      }
+
+      // set to user
+      player.child('scoreAddedThisRound').ref.set(roundScore)
+
+      // add to total score
+      player.child('gameScore').ref.set(gameScore + roundScore)
+
+      // TODO: stretch, let users see score breakdown/what cards were left in their hands
+
+      // increase phase if laid down that round
+      if (hasLaidPhaseThisRound) {
+        if (currentPhase === 10) {
+          gameShouldEnd = true
+        }
+        player.child('currentPhase').ref.set(currentPhase + 1)
+      }
+
+      // reset laid down, iscurrentturn, and drawnThisTurn, and hand
+      player.child('hasLaidPhaseThisRound').ref.set(false)
+      player.child('currentHand').ref.remove()
+      player.child('isCurrentTurn').ref.set(false)
+      player.child('hasDrawnThisTurn').ref.set(false)
+
+    })
+    
+    if (gameShouldEnd) {
+      database.ref('game/state').set('game-end')
+    } else {
+      _initializeRound(Object.entries(snapshot.val()).map((entry => entry[1])))
+      database.ref('game/state').set('round-end')
+    }
+  })
 }
-
-// Round-end gamestate
-
-// check for game end
-function checkForGameEnd() {
-  // if someone completed phase 10, endGame
-  // else init round
-}
-
-// Game-end gamestate
-// don't think there is any specific functions here, but can re-init game
 
 // Utility functions
 

@@ -22,8 +22,9 @@ function HitView({ userId, currentHand, selected, toggleInSelection, closeModal 
     setHitStage('pickCards')
   }
 
-  function isValidForHit() {
-    const containsSkip = selected.findIndex((card) => card.value === 'Skip') !== -1
+  function isValidForHit(card) {
+    const collectionToValidate = card ? [ card ] : selected
+    const containsSkip = collectionToValidate.findIndex((card) => card.value === 'Skip') !== -1
     if (containsSkip) {
       // const error = 'Skips cannot be used to hit'
       return false
@@ -34,7 +35,7 @@ function HitView({ userId, currentHand, selected, toggleInSelection, closeModal 
     let isValid = true
 
     // validate selected
-    selected.forEach((selectedCard) => {
+    collectionToValidate.forEach((selectedCard) => {
       const compareValue = selectedCard[1][valueType]
       const isWild = selectedCard[1].value === 'Wild'
       if (!isWild && !options.includes(compareValue)) {
@@ -48,14 +49,14 @@ function HitView({ userId, currentHand, selected, toggleInSelection, closeModal 
   function submitHitRun(card, wildValue) {
     const { possiblePlays, isRun, phaseIndex, laidId } = chosenPhase
     const { options } = possiblePlays
-    if (card[1].value === 'Wild' && options.length > 1 && !wildValue ) {
+    const hasOnlyOneOption = options.includes(0) || options.includes(13)
+
+    if (card[1].value === 'Wild' && !hasOnlyOneOption && !wildValue ) {
       setHitStage('pickWildValue')
     } else {
-      toggleInSelection(card)
-      
-      if (isValidForHit()) {
+      if (isValidForHit(card)) {
         const defaultWildValue = card[1].value === 'Wild' ? options[0] : wildValue
-        hitOnLaidPhase(userId, currentHand.length, isRun, selected, laidId, phaseIndex, defaultWildValue)
+        hitOnLaidPhase(userId, currentHand.length, isRun, [card], laidId, phaseIndex, defaultWildValue)
         setHitStage('pickPhase')
         closeModal()
       // function hitOnLaidPhase(uid, handSize, cards, laidId, phaseIndex, wildValue) {
@@ -89,7 +90,7 @@ function HitView({ userId, currentHand, selected, toggleInSelection, closeModal 
 
             // only show if there is a possibilty of playing
             // for instance, a run of 1-12 cannot be played on further
-            if (options.length) {
+            if (!(options.includes(0) && options.includes(13))) {
               return (
                 <li 
                   onClick={() => switchToPickCard(usersPhases[0], index, isRun, cards, possiblePlays)} 
@@ -133,8 +134,8 @@ function HitView({ userId, currentHand, selected, toggleInSelection, closeModal 
             chosenPhase.possiblePlays.options[0] :
             chosenPhase.possiblePlays.options[1]}" 
             card${!chosenPhase.isRun ? 's' : 
-            chosenPhase.possiblePlays.options[1] && chosenPhase.possiblePlays.options[1] !== 13 ? 
-            ` or a ${chosenPhase.possiblePlays.options[1]} card` : 
+            chosenPhase.possiblePlays.options[0] !== 0 && chosenPhase.possiblePlays.options[1] !== 13 ? 
+            ` or a "${chosenPhase.possiblePlays.options[1]}" card` : 
             ''}`
           }
         </p>

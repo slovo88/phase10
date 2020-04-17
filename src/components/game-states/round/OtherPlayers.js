@@ -23,12 +23,12 @@ function OtherPlayers({ userList, userId }) {
             <div key={`other-player-${user.uid}`} className={`turn-indicator ${user.isCurrentTurn && "highlight"}`}>
               <div className="other-player">
                 <p><strong>{user.displayName}</strong></p>
-                <p>Hand: {Object.keys(user.currentHand).length}</p>
+                <p>Hand: {user.currentHand ? Object.keys(user.currentHand).length : 0}</p>
                 <p>Phase: {user.currentPhase}</p>
                 {user.hasLaidPhaseThisRound ?
                   <CompletedPhase uid={user.uid} />
                   :
-                  phaseMap[user.currentPhase].text.map((phaseText) => {
+                  phaseMap[user.currentPhase] && phaseMap[user.currentPhase].text.map((phaseText) => {
                     return <p key={`${userId}-${phaseText}`} className="phase-text">{phaseText}</p>
                   })
                 }

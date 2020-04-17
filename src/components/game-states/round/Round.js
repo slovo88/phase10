@@ -309,7 +309,7 @@ function Round({
           {hasLaidPhaseThisRound ?
             <CompletedPhase uid={userId} />
             :
-            phaseMap[currentPhase].text.map((phaseText) => {
+            phaseMap[currentPhase] && phaseMap[currentPhase].text.map((phaseText) => {
               return <p key={`${userId}-${phaseText}`} className="phase-text">{phaseText}</p>
             })
           }

@@ -26,32 +26,34 @@
             - ~~Initial thought is to ask player to select cards for each requirement~~
             - Need consideration if run/set is all Wilds
     - Hit
-        - Only if laid down
+        - ~~Only if laid down~~
         - Verify
             - Consider wilds for runs, can go on front or back (2,3,4,5 -> 1 or 6)
-        - Laying multiple on same run/set
+        - ~~Laying multiple on same run/set~~
+            - Decided to only allow one at a time on a run (easier), but multiples for colors/sets
     - ~~Discard~~
         - ~~Added auto-choice if only one card in hand for player convenience~~
         - ~~Skip next player if skip is played~~
-    - Check if hand is empty (signaling round end)
+    - ~~Check if hand is empty (signaling round end)~~
         - ~~On discard~~
         - ~~On laying phase~~
-        - On hitting
+        - ~~On hitting~~
     - ~~If not round end, pass turn~~
 - Round end
-    - Total up cards in player's hands
-        - 1-9 worth 5
-        - 10-12 worth 10
-        - Skips worth 15
-        - Wilds worth 25
-    - If any player finished phase 10, run game end
+    - ~~Total up cards in player's hands~~
+        - ~~1-9 worth 5~~
+        - ~~10-12 worth 10~~
+        - ~~Skips worth 15~~
+        - ~~Wilds worth 25~~
+    - ~~If any player finished phase 10, run game end~~
+    - Pass first turn each round
 - Game end
     - Order players by total and share with all players
-    - Not sure how to handle end/restart game yet
-        - Want to remove all players from game, reset data, etc; but want to give players to option to stay on score screen
-- Lots of UI work
-    - Lowest priority
-    - Must be mobile friendly
+    - ~~Not sure how to handle end/restart game yet~~
+        - ~~Want to remove all players from game, reset data, etc; but want to give players to option to stay on score screen~~
+- ~~Lots of UI work~~
+    - ~~Lowest priority~~
+    - ~~Must be mobile friendly~~
 
 ### Tech debt
 
