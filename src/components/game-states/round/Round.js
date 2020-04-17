@@ -110,6 +110,7 @@ function Round({
 
     if (firstNonWildIndex === -1) {
       // TODO: handle all wilds
+      return
     }
 
     const rule = rules[ruleIndex]
