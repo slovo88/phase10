@@ -14,23 +14,24 @@
     - ~~Phase, so they know what they're aiming for (maybe show when viewing hand?)~~
     - ~~Turn order (and what phase they are on)~~
     - ~~Top of discard pile~~
-- Turn logic
+- ~~Turn logic~~
     - ~~Draw~~
         - ~~Choice of Draw or Discard piles~~
-    - Lay down phase
+    - ~~Lay down phase~~
         - ~~Only if not already laid down~~
-        - Only if verified
+        - ~~Only if verified~~
             - ~~Runs~~
             - ~~Sets~~
             - ~~Color (Phase 8)~~
             - ~~Initial thought is to ask player to select cards for each requirement~~
-            - Need consideration if run/set is all Wilds
-    - Hit
+            - ~~Need consideration if run/set is all Wilds~~
+                - ~~Considered it, and decided that user cannot lay all wilds~~
+    - ~~Hit~~
         - ~~Only if laid down~~
-        - Verify
-            - Consider wilds for runs, can go on front or back (2,3,4,5 -> 1 or 6)
+        - ~~Verify~~
+            - ~~Consider wilds for runs, can go on front or back (2,3,4,5 -> 1 or 6)~~
         - ~~Laying multiple on same run/set~~
-            - Decided to only allow one at a time on a run (easier), but multiples for colors/sets
+            - ~~Decided to only allow one at a time on a run (easier), but multiples for colors/sets~~
     - ~~Discard~~
         - ~~Added auto-choice if only one card in hand for player convenience~~
         - ~~Skip next player if skip is played~~
@@ -47,8 +48,8 @@
         - ~~Wilds worth 25~~
     - ~~If any player finished phase 10, run game end~~
     - Pass first turn each round
-- Game end
-    - Order players by total and share with all players
+- ~~Game end~~
+    - ~~Order players by total and share with all players~~
     - ~~Not sure how to handle end/restart game yet~~
         - ~~Want to remove all players from game, reset data, etc; but want to give players to option to stay on score screen~~
 - ~~Lots of UI work~~

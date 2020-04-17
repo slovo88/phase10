@@ -10,6 +10,7 @@ function HitView({ userId, currentHand, selected, toggleInSelection, closeModal 
   const [ hitStage, setHitStage ] = useState('pickPhase')
   const [ laidPhases, setLaidPhases ] = useState([])
   const [ chosenPhase, setChosenPhase ] = useState({})
+  const [ wildCard, setWildCard ] = useState([])
 
   useEffect(() => {
     database.ref('game/laidPhases').once('value', (snapshot) => {
@@ -52,11 +53,11 @@ function HitView({ userId, currentHand, selected, toggleInSelection, closeModal 
     const hasOnlyOneOption = options.includes(0) || options.includes(13)
 
     if (card[1].value === 'Wild' && !hasOnlyOneOption && !wildValue ) {
+      setWildCard(card)
       setHitStage('pickWildValue')
     } else {
       if (isValidForHit(card)) {
-        const defaultWildValue = card[1].value === 'Wild' ? options[0] : wildValue
-        hitOnLaidPhase(userId, currentHand.length, isRun, [card], laidId, phaseIndex, defaultWildValue)
+        hitOnLaidPhase(userId, currentHand.length, isRun, [card], laidId, phaseIndex, wildValue)
         setHitStage('pickPhase')
         closeModal()
       // function hitOnLaidPhase(uid, handSize, cards, laidId, phaseIndex, wildValue) {
@@ -70,8 +71,8 @@ function HitView({ userId, currentHand, selected, toggleInSelection, closeModal 
     // submit selected if valid
     if (isValidForHit()) {
       hitOnLaidPhase(userId, currentHand.length, isRun, selected, laidId, phaseIndex)
-        setHitStage('pickPhase')
-        closeModal()
+      setHitStage('pickPhase')
+      closeModal()
     }
   }
 
@@ -168,7 +169,18 @@ function HitView({ userId, currentHand, selected, toggleInSelection, closeModal 
   }
 
   function PickWildValue() {
-    return <h1>Select value for Wild card:</h1>
+    return (
+      <>
+        <h1>Select a value for your Wild:</h1>
+        {chosenPhase.possiblePlays.options.map((option) => (
+          <button onClick={() => submitHitRun(wildCard, option)} key={`select-wild-${option}`}>
+            {option}
+          </button>
+        ))}
+        <p>Hitting on the following run:</p>
+        <Hand currentHand={chosenPhase.phaseCards} />
+      </>
+    )
   }
 
   return (
