@@ -286,7 +286,6 @@ function Round({
         </FullScreenModal>
       }
 
-      {/* TODO: Show other player's name, phase, laid down cards, and hand size */}
       <OtherPlayers 
         userList={userList}
         userId={userId}

@@ -22,7 +22,7 @@ function initializePhase10(userList) {
       userList.find((user) => user.uid === childSnapshot.val().uid).turnOrder = index
     })
 
-    database.ref('game/currentRound').set(0)
+    database.ref('game/currentRound').set(1)
     
     _initializeRound(userList)
   })
@@ -34,7 +34,8 @@ function _initializeRound(userList) {
   // advance round
   database.ref('game/currentRound').once('value', (roundSnapshot) => {
     let currentRound = roundSnapshot.val()
-    database.ref('game/currentRound').set(currentRound++)
+
+    database.ref('game/currentRound').set(currentRound + 1)
     
     // create a new deck
     const newDeck = _generateDeck()
@@ -263,6 +264,9 @@ function endRound() {
       player.child('hasDrawnThisTurn').ref.set(false)
 
     })
+
+    // reset laidPhases
+    database.ref('game/laidPhases').remove()
     
     if (gameShouldEnd) {
       database.ref('game/state').set('game-end')
@@ -318,8 +322,6 @@ function _shuffleCards(cards) {
 
 // draw card to user's hand
 function _drawCardsToHand(drawSource, uid, cardsToDraw = 1) {
-  // TODO: check that enough cards are available to draw
-
   // splice appropriate number of items from draw source array
   const drawnCards = drawSource.splice(0, cardsToDraw)
 
