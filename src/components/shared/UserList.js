@@ -7,11 +7,16 @@ function UserList({
   isScoreScreen = false,
   isEndScreen = false,
 }) {
-  // TODO: order by score if score screen
+  // deep copy of userList
+  let scoreOrder = userList.map((user) => user)
+
+  if (isScoreScreen) {
+    scoreOrder.sort((a, b) => a.gameScore - b.gameScore)
+  }
   return (
     <ol className={isScoreScreen ? 'score-list' : 'users-ingame'}>
       {
-        userList.map((user, index) => (
+        scoreOrder.map((user, index) => (
           <li 
             className={`${user.uid} ${user.host && 'host'}`} 
             key={`userList-${index}`}
