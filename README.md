@@ -1,4 +1,13 @@
+## Disclaimer
+
+I don't own Phase 10, or anything about it. This was a passion project to provide something 
+for my SO and her friends to play while on quarantine during this COVID-19 outbreak. If asked 
+to take down the deployed gh-page, I will do so immediately. The code is mine, though, so feel 
+free to fork and PR etc etc.
+
 ## Todo list
+
+4/16/2020 - All of the MVP is complete! Time to start beta testing with friends and family!
 
 ### MVP
 
@@ -40,14 +49,14 @@
         - ~~On laying phase~~
         - ~~On hitting~~
     - ~~If not round end, pass turn~~
-- Round end
+- ~~Round end~~
     - ~~Total up cards in player's hands~~
         - ~~1-9 worth 5~~
         - ~~10-12 worth 10~~
         - ~~Skips worth 15~~
         - ~~Wilds worth 25~~
     - ~~If any player finished phase 10, run game end~~
-    - Pass first turn each round
+    - ~~Pass first turn each round~~
 - ~~Game end~~
     - ~~Order players by total and share with all players~~
     - ~~Not sure how to handle end/restart game yet~~
@@ -85,6 +94,14 @@
     - ???
 
 ## Updates
+
+### v1.0.0 - 4/16/2020
+
+- All core game functionality complete
+- Priority of fixes/stretch items will be based on feedback, and:
+    - Allowing users to sort their hands by number/color
+    - Allow user to play more than one card on a run
+    - Creation of game IDs (similar to Jackbox.tv)
 
 ### v0.0.2 - 4/12/2020
 
