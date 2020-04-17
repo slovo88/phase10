@@ -61,7 +61,7 @@ function Round({
   }
 
   function handleDrawPileClick(pile) {
-    if (!hasDrawnThisTurn) {
+    if (!hasDrawnThisTurn && isCurrentTurn) {
       drawFromPile(pile, userId)
     }
   }
